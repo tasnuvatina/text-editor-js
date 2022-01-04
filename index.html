@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Text Editor</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <div class="mx-auto w-5/6">
+        <select name="header" id="header" class="p-2 m-1 border border-gray-500 rounded-sm bg-white focus:outline-none">
+            <option value="" selected disabled>Heading</option>
+            <option value="H1">H1</option>
+            <option value="H2">H2</option>
+            <option value="H3">H3</option>
+            <option value="H4">H4</option>
+            <option value="H5">H5</option>
+            <option value="H6">H6</option>
+        </select>
+        <button class="p-2 m-1 border border-gray-500 rounded-sm" type="button" data-cmd="justifyLeft">
+            <img class="w-4 h-4" src="./images/icons/align-left-solid.svg" alt="">
+        </button>
+        <button class="p-2 m-1 border border-gray-500 rounded-sm" type="button" data-cmd="justifyCenter">
+            <img class="w-4 h-4" src="./images/icons/align-center-solid.svg" alt="">
+        </button>
+        <button class="p-2 m-1 border border-gray-500 rounded-sm" type="button" data-cmd="justifyFull">
+            <img class="w-4 h-4" src="./images/icons/align-justify-solid.svg" alt="">
+        </button>
+        <button class="p-2 m-1 border border-gray-500 rounded-sm" type="button" data-cmd="justifyRight">
+            <img class="w-4 h-4" src="./images/icons/align-right-solid.svg" alt="">
+        </button>
+        <button class="p-2 m-1 border border-gray-500 rounded-sm" type="button" data-cmd="bold">
+            <img class="w-4 h-4" src="./images/icons/bold-solid.svg" alt="">
+        </button>
+        <button class="p-2 m-1 border border-gray-500 rounded-sm" type="button" data-cmd="italic">
+            <img class="w-4 h-4" src="./images/icons/italic-solid.svg" alt="">
+        </button>
+        <button class="p-2 m-1 border border-gray-500 rounded-sm" type="button" data-cmd="insertOrderedList">
+            <img class="w-4 h-4" src="./images/icons/list-ol-solid.svg" alt="">
+        </button>
+        <button class="p-2 m-1 border border-gray-500 rounded-sm" type="button" data-cmd="insertUnorderedList">
+            <img class="w-4 h-4" src="./images/icons/list-ul-solid.svg" alt="">
+        </button>
+        <button class="p-2 m-1 border border-gray-500 rounded-sm" type="button" data-cmd="createLink">
+            <img class="w-4 h-4" src="./images/icons/link-solid.svg" alt="">
+        </button>
+        <button class="p-2 m-1 border border-gray-500 rounded-sm" type="button" data-cmd="indent">
+            <img class="w-4 h-4" src="./images/icons/indent.png" alt="">
+        </button>
+        <button class="p-2 m-1 border border-gray-500 rounded-sm" type="button" data-cmd="outdent">
+            <img class="w-4 h-4" src="./images/icons/outdent.png" alt="">
+        </button>
+        <button class="p-2 m-1 border border-gray-500 rounded-sm" type="button" data-cmd="showCode" name="active">
+            <img class="w-4 h-4" src="./images/icons/code-solid.svg" alt="">
+        </button>
+        <input class="bg-white m-1 border border-gray-500 rounded-sm" type="color" id="fontcolor" name="fontcolor"
+            value="#000">
+    </div>
+    <iframe class="mx-auto w-5/6 border border-gray-500 h-96" id="output" name="textField"></iframe>
+    <textarea class="border border-gray-800" name="" id="myText" cols="30" rows="10"></textarea>
+    <script>
+        const buttons = document.querySelectorAll("button")
+        let iframeNode = document.querySelector("iframe")
+        textField.document.designMode = "On"
+        let show = false;
+        for (let i = 0; i < buttons.length; i++) {
+            buttons[i].addEventListener("click", () => {
+                let cmd = buttons[i].dataset.cmd
+                console.log(cmd);
+                if (buttons[i].name == "active") {
+                    buttons[i].classList.toggle('border-gray-500')
+                    buttons[i].classList.toggle('border-red-500')
+                }
+                if (cmd === "createLink") {
+                    let url = prompt("Enter Link here:", "https://")
+                    console.log(url);
+                    textField.document.execCommand(cmd, false, url)
+                    // console.log(textField);
+                    const links = textField.document.querySelectorAll("a");
+                    links.forEach(element => {
+                        element.target = "_blank"
+                        element.addEventListener("mouseover", () => {
+                            textField.document.designMode = "Off";
+                        })
+                        element.addEventListener("mouseout", () => {
+                            textField.document.designMode = "On";
+                        })
+                    });
+                } else {
+                    textField.document.execCommand(cmd, false, null)
+                }
+                if (cmd == "showCode") {
+                    const textBody = textField.document.querySelector("body");
+                    if (show) {
+                        console.log(textBody.textContent);
+                        textBody.innerHTML = textBody.textContent
+                        show = false
+                    } else {
+                        textBody.textContent = textBody.innerHTML
+                        show = true
+                    }
+                }
+
+            })
+
+        }
+        let myText = document.getElementById("myText")
+        iframeNode.contentWindow.addEventListener("keyup", () => {
+                const resultString = iframeNode.contentDocument.querySelector("body").firstChild
+                console.log(resultString);
+                myText.value=resultString
+            })
+        document.getElementById("header").addEventListener("change", (e) => {
+            textField.document.execCommand("formatBlock", false, e.target.value)
+        })
+        document.getElementById("fontcolor").addEventListener("input", e => {
+            textField.document.execCommand("foreColor", false, e.target.value)
+        })
+    </script>
+</body>
+
+</html>
